@@ -5,6 +5,7 @@ Gère les commandes, les notifications et l'interaction utilisateur.
 
 import asyncio
 import logging
+import re
 from typing import Optional, Callable, Awaitable
 
 from telegram import Update, Bot
@@ -16,7 +17,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-from telegram.error import TelegramError
+from telegram.error import TelegramError, RetryAfter
 
 from .database import Database, CarListing
 from .filters import CarFilter, ScoreResult
@@ -373,19 +374,34 @@ class TelegramBot:
             # Paramètres de notification selon priorité
             disable_notification = score_result.priority == "low"
 
-            await self.bot.send_message(
-                chat_id=self.chat_id,
-                text=message,
-                parse_mode=ParseMode.MARKDOWN,
-                disable_web_page_preview=False,
-                disable_notification=disable_notification,
-            )
+            # Retry logic pour gérer le flood control
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    await self.bot.send_message(
+                        chat_id=self.chat_id,
+                        text=message,
+                        parse_mode=ParseMode.MARKDOWN,
+                        disable_web_page_preview=False,
+                        disable_notification=disable_notification,
+                    )
 
-            logger.info(
-                f"Notification envoyée: {listing.title} "
-                f"(score: {score_result.total_score}, priorité: {score_result.priority})"
-            )
-            return True
+                    logger.info(
+                        f"Notification envoyée: {listing.title} "
+                        f"(score: {score_result.total_score}, priorité: {score_result.priority})"
+                    )
+
+                    # Petit délai entre les messages pour éviter le flood control
+                    await asyncio.sleep(0.5)
+                    return True
+
+                except RetryAfter as e:
+                    wait_time = e.retry_after + 1
+                    logger.warning(f"Flood control, attente {wait_time}s...")
+                    await asyncio.sleep(wait_time)
+                    continue
+
+            return False
 
         except TelegramError as e:
             logger.error(f"Erreur envoi notification Telegram: {e}")
