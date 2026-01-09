@@ -75,6 +75,70 @@ class CarListing:
     image_url: Optional[str] = None
     raw_data: dict = field(default_factory=dict)
 
+    def matches_search(self, search_brand: str, search_model: Optional[str]) -> bool:
+        """
+        Vérifie si l'annonce correspond à la recherche.
+        Utilise le titre et la marque/modèle stockés.
+        """
+        title_lower = self.title.lower() if self.title else ""
+        brand_lower = (self.brand or "").lower()
+        model_lower = (self.model or "").lower()
+        search_brand_lower = search_brand.lower()
+        search_model_lower = (search_model or "").lower()
+
+        # Normaliser les marques (citroën -> citroen)
+        brand_aliases = {
+            "citroen": ["citroën", "citroen"],
+            "citroën": ["citroën", "citroen"],
+        }
+        search_brands = brand_aliases.get(search_brand_lower, [search_brand_lower])
+
+        # Vérifier la marque
+        brand_match = any(
+            sb in brand_lower or sb in title_lower
+            for sb in search_brands
+        )
+
+        if not brand_match:
+            return False
+
+        # Si pas de modèle spécifié, la marque suffit
+        if not search_model:
+            return True
+
+        # Vérifier le modèle avec des règles strictes
+        # Pour éviter "Mazda 2" match "Peugeot 2008"
+
+        # D'abord vérifier si le modèle stocké correspond exactement
+        if model_lower and search_model_lower in model_lower:
+            return True
+
+        # Pour les modèles numériques courts (1, 2, 3...), être plus strict
+        if search_model_lower.isdigit() and len(search_model_lower) <= 2:
+            # Patterns stricts pour éviter "2" dans "2008", "206", etc.
+            strict_patterns = [
+                f"{search_brand_lower} {search_model_lower}",  # "mazda 2"
+                f"{search_brand_lower}{search_model_lower} ",  # "mazda2 "
+                f"{search_brand_lower}{search_model_lower},",  # "mazda2,"
+                f" {search_model_lower} ",                     # " 2 " (avec espaces)
+            ]
+            # Aussi accepter en fin de titre
+            if title_lower.endswith(f" {search_model_lower}"):
+                return True
+            if title_lower.endswith(f"{search_brand_lower}{search_model_lower}"):
+                return True
+            return any(p in title_lower for p in strict_patterns)
+
+        # Pour les modèles alphanumériques (c3, jazz, swift, ibiza...)
+        model_patterns = [
+            search_model_lower,
+            f" {search_model_lower} ",
+            f" {search_model_lower},",
+            f" {search_model_lower}.",
+        ]
+
+        return any(p in title_lower or p in model_lower for p in model_patterns)
+
     def to_dict(self) -> dict:
         """Convertit l'objet en dictionnaire pour la base de données."""
         return {
@@ -341,9 +405,18 @@ class LeboncoinScraper:
 
         # Parser les résultats
         listings = self._parse_search_results(response.text, brand, model)
-        logger.info(f"Trouvé {len(listings)} annonces pour {brand} {model or ''}")
 
-        return listings[:max_results]
+        # Filtrer pour ne garder que les annonces correspondant vraiment à la recherche
+        filtered_listings = [
+            listing for listing in listings
+            if listing.matches_search(brand, model)
+        ]
+
+        logger.info(
+            f"Trouvé {len(listings)} annonces, {len(filtered_listings)} correspondent à {brand} {model or ''}"
+        )
+
+        return filtered_listings[:max_results]
 
     def _parse_search_results(
         self, html: str, brand: str, model: Optional[str]
@@ -422,6 +495,10 @@ class LeboncoinScraper:
             elif images.get("small_url"):
                 image_url = images["small_url"]
 
+            # Extraire la vraie marque/modèle depuis les attributs JSON
+            actual_brand = attributes.get("brand", brand)
+            actual_model = attributes.get("model", model)
+
             return CarListing(
                 listing_id=listing_id,
                 url=f"{self.BASE_URL}/ad/voitures/{listing_id}.htm",
@@ -431,8 +508,8 @@ class LeboncoinScraper:
                 year=year,
                 fuel=attributes.get("fuel", ""),
                 gearbox=attributes.get("gearbox", ""),
-                brand=brand,
-                model=model,
+                brand=actual_brand,
+                model=actual_model,
                 engine=attributes.get("vehicle_engine", ""),
                 location=ad.get("location", {}).get("city", ""),
                 description=ad.get("body", ""),

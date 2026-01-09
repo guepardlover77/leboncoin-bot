@@ -120,6 +120,109 @@ class TestCarListing(unittest.TestCase):
         self.assertEqual(listing.raw_data, {})
 
 
+class TestCarListingMatching(unittest.TestCase):
+    """Test CarListing.matches_search() method."""
+
+    def test_mazda_2_matches(self):
+        """Mazda 2 should match 'mazda 2' search."""
+        listing = CarListing(
+            listing_id="1",
+            url="https://example.com",
+            title="Mazda 2 1.3 MZR Elegance",
+            brand="Mazda",
+            model="2",
+        )
+        self.assertTrue(listing.matches_search("mazda", "2"))
+
+    def test_mazda_2_not_match_peugeot_2008(self):
+        """Peugeot 2008 should NOT match 'mazda 2' search."""
+        listing = CarListing(
+            listing_id="2",
+            url="https://example.com",
+            title="Peugeot 2008 1.2 PureTech",
+            brand="Peugeot",
+            model="2008",
+        )
+        self.assertFalse(listing.matches_search("mazda", "2"))
+
+    def test_mazda_2_not_match_peugeot_206(self):
+        """Peugeot 206 should NOT match 'mazda 2' search."""
+        listing = CarListing(
+            listing_id="3",
+            url="https://example.com",
+            title="Peugeot 206 1.4",
+            brand="Peugeot",
+            model="206",
+        )
+        self.assertFalse(listing.matches_search("mazda", "2"))
+
+    def test_honda_jazz_matches(self):
+        """Honda Jazz should match 'honda jazz' search."""
+        listing = CarListing(
+            listing_id="4",
+            url="https://example.com",
+            title="Honda Jazz 1.4 i-VTEC",
+            brand="Honda",
+            model="Jazz",
+        )
+        self.assertTrue(listing.matches_search("honda", "jazz"))
+
+    def test_suzuki_swift_matches(self):
+        """Suzuki Swift should match 'suzuki swift' search."""
+        listing = CarListing(
+            listing_id="5",
+            url="https://example.com",
+            title="Suzuki Swift 1.2 VVT",
+            brand="Suzuki",
+            model="Swift",
+        )
+        self.assertTrue(listing.matches_search("suzuki", "swift"))
+
+    def test_citroen_c3_matches(self):
+        """Citroën C3 should match 'citroen c3' search."""
+        listing = CarListing(
+            listing_id="6",
+            url="https://example.com",
+            title="Citroën C3 1.2 PureTech",
+            brand="Citroën",
+            model="C3",
+        )
+        self.assertTrue(listing.matches_search("citroen", "c3"))
+
+    def test_brand_only_search(self):
+        """Brand-only search should match any model."""
+        listing = CarListing(
+            listing_id="7",
+            url="https://example.com",
+            title="Toyota Yaris 1.0",
+            brand="Toyota",
+            model="Yaris",
+        )
+        self.assertTrue(listing.matches_search("toyota", None))
+
+    def test_wrong_brand_no_match(self):
+        """Wrong brand should not match."""
+        listing = CarListing(
+            listing_id="8",
+            url="https://example.com",
+            title="Fiat Panda 1.2",
+            brand="Fiat",
+            model="Panda",
+        )
+        self.assertFalse(listing.matches_search("mazda", "2"))
+
+    def test_peugeot_206_matches_206_search(self):
+        """Peugeot 206 should match 'peugeot 206' search."""
+        listing = CarListing(
+            listing_id="9",
+            url="https://example.com",
+            title="Peugeot 206+ 1.4",
+            brand="Peugeot",
+            model="206",
+        )
+        self.assertTrue(listing.matches_search("peugeot", "206"))
+
+
 class TestScraperJsonParsing(unittest.TestCase):
     """Test JSON parsing from __NEXT_DATA__."""
 
