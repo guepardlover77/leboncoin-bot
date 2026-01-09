@@ -1,0 +1,122 @@
+# Critères de recherche pour le bot Leboncoin
+# Modifiez ces valeurs selon vos besoins
+
+general:
+  max_price: 3000
+  max_km: 150000
+  min_year: 2008
+  gearbox: "manuelle"
+  fuel: "essence"
+  check_interval_minutes: 30
+  request_delay_min: 5
+  request_delay_max: 10
+
+# Modèles ciblés par ordre de priorité
+# Chaque modèle peut avoir des critères spécifiques
+models:
+  - name: "Mazda 2"
+    brand: "mazda"
+    model: "2"
+    year_min: 2010
+    year_max: 2014
+    generation: "DE"
+    priority_score: 10
+    notes: "Génération DE fiable"
+
+  - name: "Honda Jazz"
+    brand: "honda"
+    model: "jazz"
+    year_min: 2011
+    year_max: 2015
+    generation: "GE"
+    priority_score: 10
+    notes: "UNIQUEMENT boîte manuelle"
+
+  - name: "Suzuki Swift"
+    brand: "suzuki"
+    model: "swift"
+    year_min: 2013
+    year_max: 2017
+    generation: "MZ/EZ"
+    priority_score: 10
+    notes: "Post-2010 uniquement"
+
+  - name: "Seat Ibiza"
+    brand: "seat"
+    model: "ibiza"
+    year_min: 2012
+    year_max: 2017
+    generation: "6J"
+    priority_score: 5
+    notes: "Uniquement 1.4 16V 85 ou 1.2 12V atmosphérique"
+
+  - name: "Peugeot 206"
+    brand: "peugeot"
+    model: "206"
+    priority_score: 3
+
+  - name: "Peugeot 207"
+    brand: "peugeot"
+    model: "207"
+    priority_score: 3
+
+  - name: "Peugeot 208"
+    brand: "peugeot"
+    model: "208"
+    priority_score: 3
+
+  - name: "Citroën C3"
+    brand: "citroen"
+    model: "c3"
+    priority_score: 3
+
+  - name: "Renault Clio 3"
+    brand: "renault"
+    model: "clio"
+    version: "3"
+    priority_score: 3
+
+  - name: "Renault Clio 4"
+    brand: "renault"
+    model: "clio"
+    version: "4"
+    priority_score: 3
+
+  - name: "Toyota Yaris"
+    brand: "toyota"
+    model: "yaris"
+    priority_score: 5
+    notes: "Fiabilité légendaire"
+
+# Système de scoring
+scoring:
+  # Bonus
+  high_priority_models:
+    mazda_2_essence: 10
+    honda_jazz_manuelle: 10
+    swift_3_post_2010: 10
+    seat_ibiza_atmo: 5
+    toyota_yaris: 5
+
+  history_mentioned: 3
+  distribution_done: 3
+  chain_engine: 3
+  price_under_2500: 2
+  km_under_100000: 2
+
+  # Malus
+  diesel_penalty: -5
+  blacklist_keyword_penalty: -10
+
+# Seuils de priorité pour notifications
+priority_thresholds:
+  high: 15      # Score > 15 = notification urgente
+  medium: 10    # Score 10-15 = notification standard
+  # Score < 10 = notification silencieuse
+
+# Localisation (optionnel - laisser vide pour France entière)
+location:
+  region: ""
+  department: ""
+  city: ""
+  radius_km: 100

@@ -1,0 +1,167 @@
+# Exclusions par marque/modèle
+# Ces moteurs et configurations sont à éviter absolument
+
+brand_exclusions:
+  peugeot:
+    engines:
+      - "1.4 VTi"
+      - "1.6 VTi"
+      - "1.4 vti"
+      - "1.6 vti"
+    reason: "Problèmes chaîne de distribution"
+
+  citroen:
+    engines:
+      - "1.4 VTi"
+      - "1.6 VTi"
+      - "1.4 vti"
+      - "1.6 vti"
+    reason: "Problèmes chaîne de distribution"
+
+  renault:
+    engines:
+      - "1.2 TCe"
+      - "1.2 tce"
+      - "TCe 90"
+      - "TCe 100"
+      - "TCe 115"
+      - "TCe 120"
+    reason: "Problèmes de fiabilité moteur"
+
+  honda:
+    transmissions:
+      - "CVT"
+      - "cvt"
+      - "i-Shift"
+      - "i-shift"
+      - "automatique"
+      - "auto"
+      - "robotisée"
+      - "robotisee"
+    reason: "Défaut majeur actionneurs boîte"
+    require_manual: true
+
+  suzuki:
+    year_exclusions:
+      min: 2005
+      max: 2009
+      reason: "Swift 2 avec diesel catastrophique"
+    engines:
+      - "1.3 DDiS"
+      - "1.3 ddis"
+      - "DDiS"
+      - "ddis"
+    reason: "Désastre mécanique diesel"
+
+  seat:
+    engines:
+      - "1.2 TSI"
+      - "1.4 TSI"
+      - "1.2 tsi"
+      - "1.4 tsi"
+      - "1.4 TDI 80"
+      - "1.4 tdi 80"
+      - "1.2 TDI"
+      - "1.4 TDI"
+      - "1.2 tdi"
+      - "1.4 tdi"
+    reason: "Chaîne distribution fragile / casses moteur"
+    accepted_engines:
+      - "1.4 16V 85"
+      - "1.4 16v 85"
+      - "1.2 12V"
+      - "1.2 12v"
+      - "1.4 16V"
+      - "1.2 12V"
+    notes: "UNIQUEMENT moteurs atmosphériques acceptés"
+
+  mazda:
+    engines:
+      - "1.4 MZ-CD"
+      - "1.6 MZ-CD"
+      - "1.4 mz-cd"
+      - "1.6 mz-cd"
+      - "MZ-CD"
+      - "mz-cd"
+    reason: "Moteurs PSA rebadgés problématiques"
+
+# Mots-clés à exclure systématiquement (blacklist globale)
+blacklist_keywords:
+  critical:
+    - "panne"
+    - "hs"
+    - "pour pièces"
+    - "pour pieces"
+    - "accidenté"
+    - "accidente"
+    - "défaillance"
+    - "defaillance"
+    - "ne démarre pas"
+    - "ne demarre pas"
+    - "ne roule pas"
+    - "épave"
+    - "epave"
+    - "casse"
+    - "cassé"
+
+  mechanical:
+    - "boîte hs"
+    - "boite hs"
+    - "embrayage à refaire"
+    - "embrayage a refaire"
+    - "moteur à reprendre"
+    - "moteur a reprendre"
+    - "distribution à faire"
+    - "distribution a faire"
+    - "joint de culasse"
+    - "turbo hs"
+    - "injecteur"
+    - "fuite huile importante"
+
+  transmission:
+    - "cvt"
+    - "robotisée"
+    - "robotisee"
+    - "boîte robotisée"
+    - "boite robotisee"
+
+  suspicious:
+    - "vendu en l'état"
+    - "vendu en l etat"
+    - "sans garantie"
+    - "contrôle technique refusé"
+    - "contre-visite"
+
+# Mots-clés positifs (bonus scoring)
+positive_keywords:
+  maintenance:
+    - "distribution faite"
+    - "distribution neuve"
+    - "distribution changée"
+    - "chaîne distribution"
+    - "chaine distribution"
+    - "entretien suivi"
+    - "carnet entretien"
+    - "historique complet"
+    - "factures"
+    - "révision jour"
+    - "revision jour"
+    - "vidange récente"
+    - "contrôle technique ok"
+    - "ct ok"
+
+  condition:
+    - "très bon état"
+    - "excellent état"
+    - "parfait état"
+    - "première main"
+    - "1ère main"
+    - "garage"
+    - "non fumeur"
+
+  engine_type:
+    - "chaîne"
+    - "chaine"
+    - "atmosphérique"
+    - "atmospherique"
+    - "atmo"

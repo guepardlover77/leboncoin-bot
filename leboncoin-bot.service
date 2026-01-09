@@ -1,0 +1,67 @@
+# Service systemd pour le Bot Leboncoin
+#
+# Installation:
+# 1. Copiez ce fichier: sudo cp leboncoin-bot.service /etc/systemd/system/
+# 2. Modifiez les chemins selon votre installation
+# 3. Rechargez systemd: sudo systemctl daemon-reload
+# 4. Activez le service: sudo systemctl enable leboncoin-bot
+# 5. Démarrez: sudo systemctl start leboncoin-bot
+#
+# Commandes utiles:
+# - Voir le statut: sudo systemctl status leboncoin-bot
+# - Voir les logs: sudo journalctl -u leboncoin-bot -f
+# - Redémarrer: sudo systemctl restart leboncoin-bot
+# - Arrêter: sudo systemctl stop leboncoin-bot
+
+[Unit]
+Description=Bot Leboncoin - Surveillance automatique d'annonces voitures
+Documentation=https://github.com/votre-repo/leboncoin-bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# Utilisateur qui exécute le service (modifier selon votre système)
+# Pour Raspberry Pi: User=pi
+# Pour un VPS: créer un utilisateur dédié
+User=pi
+Group=pi
+
+# Répertoire de travail (modifier selon votre installation)
+WorkingDirectory=/home/pi/leboncoin-bot
+
+# Environnement Python (chemin vers le venv)
+Environment="PATH=/home/pi/leboncoin-bot/venv/bin"
+Environment="PYTHONUNBUFFERED=1"
+
+# Commande de démarrage
+ExecStart=/home/pi/leboncoin-bot/venv/bin/python -m src.main
+
+# Redémarrage automatique en cas de crash
+Restart=always
+RestartSec=30
+
+# Délai maximum pour l'arrêt propre
+TimeoutStopSec=30
+
+# Limites de ressources (optimisé pour Raspberry Pi)
+# Mémoire max: 256 MB (ajustez selon vos besoins)
+MemoryMax=256M
+# CPU max: 50% d'un core
+CPUQuota=50%
+
+# Sécurité: restreindre les permissions
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi/leboncoin-bot/data /home/pi/leboncoin-bot/logs
+
+# Journalisation vers syslog
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=leboncoin-bot
+
+[Install]
+WantedBy=multi-user.target
