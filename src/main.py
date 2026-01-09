@@ -181,7 +181,7 @@ class LeboncoinBot:
         self.logger.info("Surveillance mise en pause")
         # La boucle continue mais ne fait rien si is_monitoring est False
 
-    async def _search_all_models(self) -> list:
+    def _search_all_models(self) -> list:
         """Recherche toutes les voitures pour tous les modèles configurés."""
         all_listings = []
         models = self.car_filter.get_model_configs()
