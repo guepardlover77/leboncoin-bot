@@ -299,6 +299,9 @@ class LeboncoinScraper:
     ) -> dict:
         """
         Construit les paramètres de recherche pour l'API Leboncoin.
+
+        Note: Leboncoin semble ignorer les paramètres brand/model dans l'URL.
+        On utilise donc le champ 'text' pour la recherche textuelle.
         """
         # Mapping carburant
         fuel_mapping = {
@@ -336,11 +339,17 @@ class LeboncoinScraper:
         if min_year:
             params["regdate"] = f"{min_year}-{2025}"
 
-        # Marque
+        # Utiliser la recherche textuelle pour marque + modèle
+        # C'est plus fiable que les paramètres brand/model que Leboncoin ignore
         brand_normalized = BRAND_MAPPING.get(brand.lower(), brand.lower())
-        params["brand"] = brand_normalized
+        search_text = brand_normalized
+        if model:
+            search_text = f"{brand_normalized} {model}"
 
-        # Modèle (optionnel)
+        params["text"] = search_text
+
+        # On garde aussi les paramètres brand/model au cas où
+        params["brand"] = brand_normalized
         if model:
             params["model"] = model.lower()
 
